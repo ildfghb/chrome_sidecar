@@ -1,0 +1,37 @@
+# syntax=docker/dockerfile:1
+version: "3.8"
+
+services:
+  chrome:
+    image: chromedp/headless-shell:latest
+    container_name: chrome
+    command:
+      - /headless-shell/run.sh
+      - --no-sandbox
+      - --use-gl=angle
+      - --use-angle=swiftshader
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9223
+      - --disable-web-security
+      - --user-data-dir=/tmp/headless-shell
+    ports:
+      - "9222:9222"
+    networks:
+      - oddsnet
+    restart: unless-stopped
+
+  jczuodds:
+    build: .
+    image: jczuodds:latest
+    container_name: jczuodds
+    env_file:
+      - .env
+    depends_on:
+      - chrome
+    networks:
+      - oddsnet
+    restart: unless-stopped
+
+networks:
+  oddsnet:
+    driver: bridge
