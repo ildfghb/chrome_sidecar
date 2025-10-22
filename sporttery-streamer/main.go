@@ -346,7 +346,6 @@ func discoverChromeWS() (string, error) {
 }
 
 /* ======================= 通过浏览器取 JSON ======================= */
-// chromeFetchJSON 在首方页面上下文中通过浏览器发起请求，返回接口原始字节。
 func chromeFetchJSON(c context.Context, wsURL, apiURL string, timeout time.Duration) ([]byte, error) {
 	if wsURL == "" {
 		return nil, errors.New("chromeFetchJSON: empty wsURL")
@@ -423,9 +422,9 @@ func chromeFetchJSON(c context.Context, wsURL, apiURL string, timeout time.Durat
 		}
 	})
 
+	// 预热到空白页，避免站点脚本发起无关 XHR/CORS 噪声
 	if err := chromedp.Run(ctx,
-		chromedp.Navigate("https://m.sporttery.cn/"),
-		chromedp.WaitReady("body", chromedp.ByQuery),
+		chromedp.Navigate("about:blank"),
 	); err != nil {
 		return nil, fmt.Errorf("warmup navigate failed: %w", err)
 	}
@@ -477,6 +476,7 @@ func chromeFetchJSON(c context.Context, wsURL, apiURL string, timeout time.Durat
 
 	return []byte(pre), nil
 }
+
 
 /* ======================= 业务抓取（全走浏览器容器） ======================= */
 
